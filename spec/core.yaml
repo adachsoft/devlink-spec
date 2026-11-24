@@ -1,69 +1,95 @@
 openapi: 3.1.0
 info:
-  title: "devlink-spec core"
-  version: 0.1.0
+  title: devlink core API
+  version: '0.1.0'
+  description: >-
+    The platform-neutral core API for devlink, a small agent exposing a LAN API
+    from a developer's test device. It provides device information, extension
+    discovery, and current status. Platform-specific capabilities belong in
+    extensions. Bearer tokens carry scopes: `core` grants access to `/v1/*`,
+    and `ext:<id>` grants access to the corresponding extension. All core
+    endpoints require the `core` scope. Clients MUST tolerate unknown response
+    fields.
   license:
     name: MIT
     identifier: MIT
 servers:
-  - url: http://localhost:8080
-    description: Local development server
+  - url: http://{host}:{port}
+    description: Default LAN server.
+    variables:
+      host:
+        default: devlink.local
+        description: Hostname or IP address of the devlink agent.
+      port:
+        default: '8787'
+        description: HTTP port used by the devlink agent.
+security:
+  - bearerAuth: []
+tags:
+  - name: core
+    description: Platform-neutral device information, extension discovery, and status.
 paths:
   /v1/info:
     get:
+      tags:
+        - core
       operationId: getInfo
-      summary: Get API information
+      summary: Get device and agent information
+      description: Returns stable device identity, platform, operating-system version, agent version, and core API version.
       responses:
         '200':
-          description: API information
+          description: Device and agent information.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Info'
+                $ref: './components/schemas.yaml#/components/schemas/Info'
         '401':
-          description: Missing or invalid bearer token
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
+          $ref: './components/responses.yaml#/components/responses/Unauthorized'
+        '403':
+          $ref: './components/responses.yaml#/components/responses/Forbidden'
         default:
-          description: Unexpected error
+          $ref: './components/responses.yaml#/components/responses/UnexpectedError'
+  /v1/extensions:
+    get:
+      tags:
+        - core
+      operationId: listExtensions
+      summary: List available extensions
+      description: Returns extension descriptors, including whether each extension is enabled and the scope required to use it.
+      responses:
+        '200':
+          description: Available extension descriptors.
           content:
-            application/problem+json:
+            application/json:
               schema:
-                $ref: '#/components/schemas/Problem'
-security:
-  - bearerAuth: []
+                $ref: './components/schemas.yaml#/components/schemas/ExtensionList'
+        '401':
+          $ref: './components/responses.yaml#/components/responses/Unauthorized'
+        '403':
+          $ref: './components/responses.yaml#/components/responses/Forbidden'
+        default:
+          $ref: './components/responses.yaml#/components/responses/UnexpectedError'
+  /v1/status:
+    get:
+      tags:
+        - core
+      operationId: getStatus
+      summary: Get current device and extension status
+      description: Returns core device information and free-form status sections contributed by enabled extensions.
+      responses:
+        '200':
+          description: Current device and extension status.
+          content:
+            application/json:
+              schema:
+                $ref: './components/schemas.yaml#/components/schemas/Status'
+        '401':
+          $ref: './components/responses.yaml#/components/responses/Unauthorized'
+        '403':
+          $ref: './components/responses.yaml#/components/responses/Forbidden'
+        default:
+          $ref: './components/responses.yaml#/components/responses/UnexpectedError'
 components:
-  schemas:
-    Info:
-      type: object
-      required:
-        - platform
-        - apiVersion
-      properties:
-        platform:
-          type: string
-        apiVersion:
-          type: string
-    Problem:
-      type: object
-      description: Problem details as defined by RFC 9457.
-      properties:
-        type:
-          type: string
-          format: uri-reference
-        title:
-          type: string
-        status:
-          type: integer
-          minimum: 100
-          maximum: 599
-        detail:
-          type: string
-        instance:
-          type: string
-          format: uri-reference
   securitySchemes:
     bearerAuth:
       type: http

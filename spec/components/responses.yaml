@@ -1,0 +1,31 @@
+components:
+  responses:
+    Unauthorized:
+      description: The bearer token is missing or invalid.
+      headers:
+        WWW-Authenticate:
+          description: Bearer authentication challenge.
+          schema:
+            type: string
+      content:
+        application/problem+json:
+          schema:
+            $ref: './schemas.yaml#/components/schemas/Problem'
+    Forbidden:
+      description: The bearer token is valid but lacks the scope required for this operation.
+      content:
+        application/problem+json:
+          schema:
+            $ref: './schemas.yaml#/components/schemas/Problem'
+    NotFound:
+      description: The requested resource was not found.
+      content:
+        application/problem+json:
+          schema:
+            $ref: './schemas.yaml#/components/schemas/Problem'
+    UnexpectedError:
+      description: Unexpected error response.
+      content:
+        application/problem+json:
+          schema:
+            $ref: './schemas.yaml#/components/schemas/Problem'

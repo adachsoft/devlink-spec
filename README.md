@@ -1,19 +1,15 @@
-# devlink-spec
+# devlink
 
-## Purpose
+Devlink is a small agent for a developer's test device. It exposes an HTTP API on the local network so development tools can keep the device debuggable—for example, by keeping wireless ADB enabled, keeping the screen on while charging, or watching Wi-Fi state. The first target is an Android phone, with the agent implemented in Kotlin.
 
-This repository is the API-first source of truth for an API specification. The API contract is designed and reviewed here before implementations are built against it.
+This repository is the API-first specification only; it does not contain the agent implementation. The core API describes capabilities shared by all platforms, while platform-specific behavior belongs in extensions.
 
-## Layout
+## Repository layout
 
-- `spec/core.yaml` — the core OpenAPI contract.
-- `spec/components/` — reusable OpenAPI components.
-- `spec/extensions/` — independently versioned API extensions.
-- `docs/` — design notes and supporting documentation.
-
-## Versioning
-
-Use semantic versioning for release tags. Version the core API and each extension independently. Publish breaking changes only in a new major version. Clients are tolerant readers and MUST ignore unknown fields.
+- `spec/core.yaml` — the platform-neutral OpenAPI core contract.
+- `spec/components/` — reusable schemas and responses shared by the core and extensions.
+- `spec/extensions/` — OpenAPI documents for independently versioned extensions.
+- `docs/` — [device discovery](docs/discovery.md), [security](docs/security.md), [versioning](docs/versioning.md), and [extension authoring](docs/extensions.md) guidance.
 
 ## Linting
 
@@ -29,3 +25,4 @@ npx @redocly/cli lint
 - RFC 9457 problem details (`application/problem+json`)
 - RFC 6750 Bearer authentication
 - RFC 2119 requirement keywords (`MUST`, `MUST NOT`, `SHOULD`, `SHOULD NOT`, and `MAY`)
+- RFC 6335 service-name limits and RFC 6763 DNS-SD

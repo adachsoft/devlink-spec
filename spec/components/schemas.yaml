@@ -1,0 +1,123 @@
+components:
+  schemas:
+    Info:
+      type: object
+      description: Stable identity and version information for the devlink agent and its device.
+      required:
+        - id
+        - name
+        - platform
+        - osVersion
+        - agentVersion
+        - apiVersion
+      properties:
+        id:
+          type: string
+          description: Stable identifier for this device and agent instance.
+        name:
+          type: string
+          description: User-visible device name.
+        platform:
+          type: string
+          description: Operating-system platform reported by the device.
+          enum:
+            - android
+            - windows
+            - linux
+            - macos
+            - ios
+        osVersion:
+          type: string
+          description: Operating-system version of the device.
+        agentVersion:
+          type: string
+          description: Semantic version of the devlink agent.
+          pattern: '^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(-[0-9A-Za-z.-]+)?(\+[0-9A-Za-z.-]+)?$'
+        apiVersion:
+          type: string
+          description: Semantic version of the devlink core API.
+          pattern: '^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(-[0-9A-Za-z.-]+)?(\+[0-9A-Za-z.-]+)?$'
+    ExtensionDescriptor:
+      type: object
+      description: Metadata describing an independently versioned devlink extension.
+      required:
+        - id
+        - version
+        - enabled
+        - scope
+        - basePath
+      properties:
+        id:
+          type: string
+          description: Lowercase, dot-separated semantic extension identifier.
+          pattern: '^[a-z][a-z0-9-]*(\.[a-z][a-z0-9-]*)+$'
+          example: android.adb
+        version:
+          type: string
+          description: Semantic version of this extension.
+          pattern: '^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(-[0-9A-Za-z.-]+)?(\+[0-9A-Za-z.-]+)?$'
+          example: 1.0.0
+        enabled:
+          type: boolean
+          description: Whether the extension is enabled on this device.
+        scope:
+          type: string
+          description: Bearer-token scope required to use this extension.
+          example: ext:android.adb
+        basePath:
+          type: string
+          description: Base URL path for this extension's API.
+          example: /ext/android.adb/v1
+    ExtensionList:
+      type: object
+      description: Extensions available on this devlink agent.
+      required:
+        - extensions
+      properties:
+        extensions:
+          type: array
+          items:
+            $ref: '#/components/schemas/ExtensionDescriptor'
+    Status:
+      type: object
+      description: Current core and extension status. Each enabled extension contributes its own state section, keyed by extension ID.
+      required:
+        - info
+        - extensions
+      properties:
+        info:
+          $ref: '#/components/schemas/Info'
+        extensions:
+          type: object
+          description: Free-form status sections contributed by enabled extensions; each property key is an extension ID.
+          additionalProperties:
+            type: object
+            description: Free-form state reported by one extension.
+            additionalProperties: true
+    Problem:
+      type: object
+      description: Problem details response as defined by RFC 9457, with the optional code extension member.
+      properties:
+        type:
+          type: string
+          format: uri-reference
+          default: 'about:blank'
+          description: URI reference identifying the problem type; defaults to about:blank.
+        title:
+          type: string
+          description: Short, human-readable summary of the problem type.
+        status:
+          type: integer
+          minimum: 100
+          maximum: 599
+          description: HTTP status code for this occurrence of the problem.
+        detail:
+          type: string
+          description: Human-readable explanation specific to this occurrence of the problem.
+        instance:
+          type: string
+          format: uri-reference
+          description: URI reference identifying this specific occurrence of the problem.
+        code:
+          type: string
+          description: Optional machine-readable application error code.
