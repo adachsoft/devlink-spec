@@ -10,5 +10,3 @@ apis:
   device-battery:
     root: spec/extensions/device.battery.yaml
 extends: [recommended]
-rules:
-  info-license-url: off
