@@ -1,4 +1,4 @@
-# __PROJECT_NAME__
+# devlink-spec
 
 ## Purpose
 
