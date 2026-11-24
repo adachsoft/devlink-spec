@@ -1,0 +1,85 @@
+openapi: 3.1.0
+info:
+  title: devlink extension device.battery
+  version: '0.1.0'
+  description: >-
+    Requires the `ext:device.battery` scope. Its state is also reported under
+    `extensions["device.battery"]` in `GET /v1/status`. This is a semantic,
+    cross-platform battery capability.
+  license:
+    name: MIT
+    identifier: MIT
+servers:
+  - url: http://{host}:{port}
+    description: Default LAN server.
+    variables:
+      host:
+        default: devlink.local
+        description: Hostname or IP address of the devlink agent.
+      port:
+        default: '8787'
+        description: HTTP port used by the devlink agent.
+security:
+  - bearerAuth: []
+tags:
+  - name: device.battery
+    description: Battery level, charging, and health state.
+paths:
+  /ext/device.battery/v1/state:
+    get:
+      tags:
+        - device.battery
+      operationId: getBatteryState
+      summary: Get battery state
+      description: Returns the current battery charge, power source, temperature, and health.
+      responses:
+        '200':
+          description: Current battery state.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BatteryState'
+        '401':
+          $ref: '../components/responses.yaml#/components/responses/Unauthorized'
+        '403':
+          $ref: '../components/responses.yaml#/components/responses/Forbidden'
+        default:
+          $ref: '../components/responses.yaml#/components/responses/UnexpectedError'
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+  schemas:
+    BatteryState:
+      type: object
+      description: Current battery charge, power source, temperature, and health.
+      required:
+        - levelPercent
+        - charging
+        - plugType
+        - temperatureCelsius
+        - health
+      properties:
+        levelPercent:
+          type: integer
+          minimum: 0
+          maximum: 100
+          description: Battery charge level as a percentage.
+        charging:
+          type: boolean
+          description: Whether the battery is currently charging.
+        plugType:
+          type: string
+          description: Power source connected to the device.
+          enum:
+            - none
+            - ac
+            - usb
+            - wireless
+        temperatureCelsius:
+          type: [number, 'null']
+          description: Battery temperature in degrees Celsius, or null when unavailable.
+        health:
+          type: [string, 'null']
+          description: Battery health reported by the platform, or null when unavailable.

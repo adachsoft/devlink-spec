@@ -1,0 +1,132 @@
+openapi: 3.1.0
+info:
+  title: devlink extension power.keep-awake
+  version: '0.1.0'
+  description: >-
+    Requires the `ext:power.keep-awake` scope. Its state is also reported under
+    `extensions["power.keep-awake"]` in `GET /v1/status`. This semantic
+    capability is cross-platform; on Android it maps to Settings.Global
+    `stay_on_while_plugged_in`.
+  license:
+    name: MIT
+    identifier: MIT
+servers:
+  - url: http://{host}:{port}
+    description: Default LAN server.
+    variables:
+      host:
+        default: devlink.local
+        description: Hostname or IP address of the devlink agent.
+      port:
+        default: '8787'
+        description: HTTP port used by the devlink agent.
+security:
+  - bearerAuth: []
+tags:
+  - name: power.keep-awake
+    description: Keep the screen on while the device is charging.
+paths:
+  /ext/power.keep-awake/v1/state:
+    get:
+      tags:
+        - power.keep-awake
+      operationId: getKeepAwakeState
+      summary: Get keep-awake state
+      description: Returns whether the screen is kept on while charging and which power sources enable it.
+      responses:
+        '200':
+          description: Current keep-awake state.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/KeepAwakeState'
+        '401':
+          $ref: '../components/responses.yaml#/components/responses/Unauthorized'
+        '403':
+          $ref: '../components/responses.yaml#/components/responses/Forbidden'
+        default:
+          $ref: '../components/responses.yaml#/components/responses/UnexpectedError'
+    put:
+      tags:
+        - power.keep-awake
+      operationId: setKeepAwakeState
+      summary: Set keep-awake state
+      description: >-
+        Sets whether the screen stays on while charging. If sources is omitted,
+        the setting applies to all supported power sources. On Android, changing
+        this setting requires WRITE_SECURE_SETTINGS.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - enabled
+              properties:
+                enabled:
+                  type: boolean
+                  description: Whether to keep the screen on while charging.
+                sources:
+                  type: array
+                  description: Power sources for which keep-awake applies; defaults to all sources when omitted.
+                  default: [ac, usb, wireless]
+                  items:
+                    type: string
+                    enum:
+                      - ac
+                      - usb
+                      - wireless
+      responses:
+        '200':
+          description: Updated keep-awake state.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/KeepAwakeState'
+        '401':
+          $ref: '../components/responses.yaml#/components/responses/Unauthorized'
+        '403':
+          $ref: '../components/responses.yaml#/components/responses/Forbidden'
+        '409':
+          description: Permission required to change the setting is missing; on Android, grant WRITE_SECURE_SETTINGS once with `adb shell pm grant <package-name> android.permission.WRITE_SECURE_SETTINGS`.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '../components/schemas.yaml#/components/schemas/Problem'
+              examples:
+                permissionMissing:
+                  summary: Required setting permission is not granted
+                  value:
+                    type: about:blank
+                    title: Permission missing
+                    status: 409
+                    code: permission-missing
+                    detail: Grant WRITE_SECURE_SETTINGS on Android, then retry.
+        default:
+          $ref: '../components/responses.yaml#/components/responses/UnexpectedError'
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+  schemas:
+    KeepAwakeState:
+      type: object
+      description: Whether the screen stays on while charging and the power sources to which it applies.
+      required:
+        - enabled
+        - sources
+      properties:
+        enabled:
+          type: boolean
+          description: Whether to keep the screen on while the device is charging.
+        sources:
+          type: array
+          description: Power sources for which keep-awake applies.
+          items:
+            type: string
+            enum:
+              - ac
+              - usb
+              - wireless

@@ -1,6 +1,14 @@
 apis:
   core:
     root: spec/core.yaml
+  android-adb:
+    root: spec/extensions/android.adb.yaml
+  power-keep-awake:
+    root: spec/extensions/power.keep-awake.yaml
+  network-wifi:
+    root: spec/extensions/network.wifi.yaml
+  device-battery:
+    root: spec/extensions/device.battery.yaml
 extends: [recommended]
 rules:
   info-license-url: off

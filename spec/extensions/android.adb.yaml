@@ -1,0 +1,168 @@
+openapi: 3.1.0
+info:
+  title: devlink extension android.adb
+  version: '0.1.0'
+  description: >-
+    Requires the `ext:android.adb` scope. Its state is also reported under
+    `extensions["android.adb"]` in `GET /v1/status`.
+  license:
+    name: MIT
+    identifier: MIT
+servers:
+  - url: http://{host}:{port}
+    description: Default LAN server.
+    variables:
+      host:
+        default: devlink.local
+        description: Hostname or IP address of the devlink agent.
+      port:
+        default: '8787'
+        description: HTTP port used by the devlink agent.
+security:
+  - bearerAuth: []
+tags:
+  - name: android.adb
+    description: Android wireless debugging controls.
+paths:
+  /ext/android.adb/v1/state:
+    get:
+      tags:
+        - android.adb
+      operationId: getAndroidAdbState
+      summary: Get Android wireless debugging state
+      description: Returns the current wireless debugging settings and whether the required secure-settings permission is granted.
+      responses:
+        '200':
+          description: Current Android wireless debugging state.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdbState'
+        '401':
+          $ref: '../components/responses.yaml#/components/responses/Unauthorized'
+        '403':
+          $ref: '../components/responses.yaml#/components/responses/Forbidden'
+        default:
+          $ref: '../components/responses.yaml#/components/responses/UnexpectedError'
+  /ext/android.adb/v1/wireless/enable:
+    post:
+      tags:
+        - android.adb
+      operationId: enableAndroidWirelessDebugging
+      summary: Enable Android wireless debugging
+      description: >-
+        Enables wireless debugging. The agent needs WRITE_SECURE_SETTINGS; grant
+        it once with `adb shell pm grant <package-name>
+        android.permission.WRITE_SECURE_SETTINGS` before retrying if permission
+        is missing.
+      responses:
+        '200':
+          description: Wireless debugging was enabled; returns the resulting state.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdbState'
+        '401':
+          $ref: '../components/responses.yaml#/components/responses/Unauthorized'
+        '403':
+          $ref: '../components/responses.yaml#/components/responses/Forbidden'
+        '409':
+          description: WRITE_SECURE_SETTINGS is not granted; grant it once with `adb shell pm grant <package-name> android.permission.WRITE_SECURE_SETTINGS`.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '../components/schemas.yaml#/components/schemas/Problem'
+              examples:
+                permissionMissing:
+                  summary: WRITE_SECURE_SETTINGS is not granted
+                  value:
+                    type: about:blank
+                    title: Permission missing
+                    status: 409
+                    code: permission-missing
+                    detail: Grant WRITE_SECURE_SETTINGS once with adb pm grant, then retry.
+        default:
+          $ref: '../components/responses.yaml#/components/responses/UnexpectedError'
+  /ext/android.adb/v1/wireless/disable:
+    post:
+      tags:
+        - android.adb
+      operationId: disableAndroidWirelessDebugging
+      summary: Disable Android wireless debugging
+      description: Disables wireless debugging and returns the resulting state.
+      responses:
+        '200':
+          description: Wireless debugging was disabled; returns the resulting state.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdbState'
+        '401':
+          $ref: '../components/responses.yaml#/components/responses/Unauthorized'
+        '403':
+          $ref: '../components/responses.yaml#/components/responses/Forbidden'
+        default:
+          $ref: '../components/responses.yaml#/components/responses/UnexpectedError'
+  /ext/android.adb/v1/enable-on-boot:
+    put:
+      tags:
+        - android.adb
+      operationId: setAndroidAdbEnableOnBoot
+      summary: Set whether wireless debugging is enabled on boot
+      description: Updates the wireless debugging enable-on-boot setting and returns the resulting state.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - enabled
+              properties:
+                enabled:
+                  type: boolean
+                  description: Whether wireless debugging should be enabled on boot.
+      responses:
+        '200':
+          description: Updated Android wireless debugging state.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdbState'
+        '401':
+          $ref: '../components/responses.yaml#/components/responses/Unauthorized'
+        '403':
+          $ref: '../components/responses.yaml#/components/responses/Forbidden'
+        default:
+          $ref: '../components/responses.yaml#/components/responses/UnexpectedError'
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+  schemas:
+    AdbState:
+      type: object
+      description: Current Android wireless debugging configuration and permission state.
+      required:
+        - wirelessDebuggingEnabled
+        - port
+        - ipAddress
+        - secureSettingsPermission
+        - enableOnBoot
+      properties:
+        wirelessDebuggingEnabled:
+          type: boolean
+          description: Whether Android wireless debugging is enabled, as reported by Settings.Global adb_wifi_enabled.
+        port:
+          type: [integer, 'null']
+          description: TCP port from Settings.Global adb_wifi_port or mDNS _adb-tls-connect._tcp; null when unknown.
+        ipAddress:
+          type: [string, 'null']
+          description: IP address used for wireless debugging, or null when unknown.
+        secureSettingsPermission:
+          type: boolean
+          description: Whether android.permission.WRITE_SECURE_SETTINGS has been granted to the agent.
+        enableOnBoot:
+          type: boolean
+          description: Whether wireless debugging is configured to be enabled on boot.

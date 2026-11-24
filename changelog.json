@@ -5,7 +5,8 @@
     "unreleased": {
         "changes": {
             "added": [
-                "Core API contract for device information, extension discovery, and status, with documentation for discovery, security, versioning, and extensions."
+                "Core API contract for device information, extension discovery, and status, with documentation for discovery, security, versioning, and extensions.",
+                "Initial API contracts for the `android.adb`, `power.keep-awake`, `network.wifi`, and `device.battery` extensions."
             ]
         }
     }

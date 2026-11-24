@@ -7,4 +7,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Added
 - Core API contract for device information, extension discovery, and status, with documentation for discovery, security, versioning, and extensions.
+- Initial API contracts for the `android.adb`, `power.keep-awake`, `network.wifi`, and `device.battery` extensions.
 

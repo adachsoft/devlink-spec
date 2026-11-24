@@ -1,0 +1,137 @@
+openapi: 3.1.0
+info:
+  title: devlink extension network.wifi
+  version: '0.1.0'
+  description: >-
+    Requires the `ext:network.wifi` scope. Its state is also reported under
+    `extensions["network.wifi"]` in `GET /v1/status`. This is a semantic,
+    cross-platform capability. On Android 10 and later, apps cannot toggle
+    Wi-Fi or force a connection; reconnect requests are best effort and use a
+    WifiNetworkSuggestion.
+  license:
+    name: MIT
+    identifier: MIT
+servers:
+  - url: http://{host}:{port}
+    description: Default LAN server.
+    variables:
+      host:
+        default: devlink.local
+        description: Hostname or IP address of the devlink agent.
+      port:
+        default: '8787'
+        description: HTTP port used by the devlink agent.
+security:
+  - bearerAuth: []
+tags:
+  - name: network.wifi
+    description: Wi-Fi connection and signal monitoring.
+paths:
+  /ext/network.wifi/v1/state:
+    get:
+      tags:
+        - network.wifi
+      operationId: getWifiState
+      summary: Get Wi-Fi state
+      description: Returns the current Wi-Fi connection, addressing, signal, and link information.
+      responses:
+        '200':
+          description: Current Wi-Fi state.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WifiState'
+        '401':
+          $ref: '../components/responses.yaml#/components/responses/Unauthorized'
+        '403':
+          $ref: '../components/responses.yaml#/components/responses/Forbidden'
+        default:
+          $ref: '../components/responses.yaml#/components/responses/UnexpectedError'
+  /ext/network.wifi/v1/reconnect:
+    post:
+      tags:
+        - network.wifi
+      operationId: requestWifiReconnect
+      summary: Request a Wi-Fi reconnection attempt
+      description: >-
+        Requests a best-effort reconnection attempt. Acceptance does not
+        guarantee a connection or force a particular network. On Android 10
+        and later, the agent cannot toggle Wi-Fi or force a connection and may
+        use a WifiNetworkSuggestion.
+      responses:
+        '202':
+          description: Reconnection attempt accepted for best-effort processing.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReconnectRequest'
+              examples:
+                networkSuggestion:
+                  summary: Reconnection requested using a network suggestion
+                  value:
+                    accepted: true
+                    method: network-suggestion
+        '401':
+          $ref: '../components/responses.yaml#/components/responses/Unauthorized'
+        '403':
+          $ref: '../components/responses.yaml#/components/responses/Forbidden'
+        default:
+          $ref: '../components/responses.yaml#/components/responses/UnexpectedError'
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+  schemas:
+    WifiState:
+      type: object
+      description: Current Wi-Fi connection and link state.
+      required:
+        - connected
+        - ssid
+        - bssid
+        - ipAddress
+        - rssiDbm
+        - linkSpeedMbps
+        - frequencyMhz
+        - lastDisconnectAt
+      properties:
+        connected:
+          type: boolean
+          description: Whether the device is connected to a Wi-Fi network.
+        ssid:
+          type: [string, 'null']
+          description: Connected network name, or null when unavailable.
+        bssid:
+          type: [string, 'null']
+          description: Connected access point BSSID, or null when unavailable.
+        ipAddress:
+          type: [string, 'null']
+          description: Wi-Fi interface IP address, or null when unavailable.
+        rssiDbm:
+          type: [integer, 'null']
+          description: Received signal strength in dBm, or null when unavailable.
+        linkSpeedMbps:
+          type: [integer, 'null']
+          description: Current link speed in megabits per second, or null when unavailable.
+        frequencyMhz:
+          type: [integer, 'null']
+          description: Wi-Fi frequency in megahertz, or null when unavailable.
+        lastDisconnectAt:
+          type: [string, 'null']
+          format: date-time
+          description: Timestamp of the most recent disconnection, or null when unknown.
+    ReconnectRequest:
+      type: object
+      description: Result of accepting a best-effort Wi-Fi reconnection request.
+      required:
+        - accepted
+        - method
+      properties:
+        accepted:
+          type: boolean
+          description: Whether the reconnection attempt was accepted for processing; this does not mean the device connected.
+        method:
+          type: string
+          description: Method selected for the reconnection attempt.
+          example: network-suggestion

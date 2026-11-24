@@ -4,7 +4,7 @@
 
 The core API and each extension use independent semantic versions (`MAJOR.MINOR.PATCH`). The core API version is reported by `/v1/info`; each extension reports its own version in `/v1/extensions`.
 
-Core endpoints use a versioned path such as `/v1`. Extension endpoints use `/ext/<id>/v<major>`, for example `/ext/android.adb/v1`. A breaking change MUST use a new major-version path, such as `/v2` for the core or `/ext/<id>/v2` for an extension. Non-breaking changes retain the existing major-version path.
+Core endpoints use a versioned path such as `/v1`. Extension endpoints use `/ext/<id>/v<major>`, for example `/ext/android.adb/v1`. API documents with a `0.x` version are drafts served under their `v1` path; breaking changes are allowed in `0.x` minor releases. A document at version `1.0.0` freezes its `v1` contract. After a contract is frozen, a breaking change MUST use a new major-version path, such as `/v2` for the core or `/ext/<id>/v2` for an extension. Non-breaking changes retain the existing major-version path.
 
 ## Tolerant readers
 

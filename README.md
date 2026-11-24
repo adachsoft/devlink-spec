@@ -11,6 +11,13 @@ This repository is the API-first specification only; it does not contain the age
 - `spec/extensions/` — OpenAPI documents for independently versioned extensions.
 - `docs/` — [device discovery](docs/discovery.md), [security](docs/security.md), [versioning](docs/versioning.md), and [extension authoring](docs/extensions.md) guidance.
 
+## Extensions
+
+- [`android.adb`](spec/extensions/android.adb.yaml) — Android wireless debugging.
+- [`power.keep-awake`](spec/extensions/power.keep-awake.yaml) — Keep the screen on while charging.
+- [`network.wifi`](spec/extensions/network.wifi.yaml) — Wi-Fi connection and signal monitoring.
+- [`device.battery`](spec/extensions/device.battery.yaml) — Battery level, charging, and health state.
+
 ## Linting
 
 Run the OpenAPI linter from the repository root:
