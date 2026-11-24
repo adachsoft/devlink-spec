@@ -1,13 +1,16 @@
 {
-    "versions": [],
-    "title": "Changelog",
-    "intro": "All notable changes to this project will be documented in this file.\nThe format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),\nand this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).",
-    "unreleased": {
-        "changes": {
-            "added": [
-                "Core API contract for device information, extension discovery, and status, with documentation for discovery, security, versioning, and extensions.",
-                "Initial API contracts for the `android.adb`, `power.keep-awake`, `network.wifi`, and `device.battery` extensions."
-            ]
+    "versions": [
+        {
+            "version": "0.1.0",
+            "date": "2026-11-24",
+            "changes": {
+                "added": [
+                    "Core API contract for device information, extension discovery, and status, with documentation for discovery, security, versioning, and extensions.",
+                    "Initial API contracts for the `android.adb`, `power.keep-awake`, `network.wifi`, and `device.battery` extensions."
+                ]
+            }
         }
-    }
+    ],
+    "title": "Changelog",
+    "intro": "All notable changes to this project will be documented in this file.\nThe format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),\nand this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html)."
 }
