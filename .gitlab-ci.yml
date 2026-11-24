@@ -1,0 +1,4 @@
+lint:
+  image: node:22
+  script:
+    - npx --yes @redocly/cli@latest lint

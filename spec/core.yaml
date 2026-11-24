@@ -1,0 +1,70 @@
+openapi: 3.1.0
+info:
+  title: "__PROJECT_NAME__ core"
+  version: 0.1.0
+  license:
+    name: MIT
+    identifier: MIT
+servers:
+  - url: http://localhost:8080
+    description: Local development server
+paths:
+  /v1/info:
+    get:
+      operationId: getInfo
+      summary: Get API information
+      responses:
+        '200':
+          description: API information
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Info'
+        '401':
+          description: Missing or invalid bearer token
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        default:
+          description: Unexpected error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+security:
+  - bearerAuth: []
+components:
+  schemas:
+    Info:
+      type: object
+      required:
+        - platform
+        - apiVersion
+      properties:
+        platform:
+          type: string
+        apiVersion:
+          type: string
+    Problem:
+      type: object
+      description: Problem details as defined by RFC 9457.
+      properties:
+        type:
+          type: string
+          format: uri-reference
+        title:
+          type: string
+        status:
+          type: integer
+          minimum: 100
+          maximum: 599
+        detail:
+          type: string
+        instance:
+          type: string
+          format: uri-reference
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
