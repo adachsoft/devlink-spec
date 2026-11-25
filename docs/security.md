@@ -15,6 +15,6 @@ The agent MUST return `401 Unauthorized` when a token is missing or invalid, and
 
 ## Extension safety
 
-Sensitive extensions MUST be disabled by default and MUST be explicitly enabled on the device. Default extensions MUST NOT expose endpoints for installing applications or reading user data.
+Sensitive extensions MUST be disabled by default and MUST be explicitly enabled on the device. Default extensions MUST NOT expose endpoints for installing applications or reading user data. The `display.screenshot` extension exposes screen contents and is sensitive; it MUST be disabled by default and explicitly enabled on the device.
 
 The requirement keywords `MUST`, `MUST NOT`, `SHOULD`, `SHOULD NOT`, and `MAY` are used with the meanings defined by RFC 2119.

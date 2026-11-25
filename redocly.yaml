@@ -9,4 +9,6 @@ apis:
     root: spec/extensions/network.wifi.yaml
   device-battery:
     root: spec/extensions/device.battery.yaml
+  display-screenshot:
+    root: spec/extensions/display.screenshot.yaml
 extends: [recommended]
