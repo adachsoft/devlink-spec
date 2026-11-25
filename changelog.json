@@ -1,6 +1,15 @@
 {
     "versions": [
         {
+            "version": "0.2.0",
+            "date": "2026-11-25",
+            "changes": {
+                "added": [
+                    "`display.screenshot` extension contract for capturing the current screen."
+                ]
+            }
+        },
+        {
             "version": "0.1.0",
             "date": "2026-11-24",
             "changes": {
@@ -12,12 +21,5 @@
         }
     ],
     "title": "Changelog",
-    "intro": "All notable changes to this project will be documented in this file.\nThe format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),\nand this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).",
-    "unreleased": {
-        "changes": {
-            "added": [
-                "`display.screenshot` extension contract for capturing the current screen."
-            ]
-        }
-    }
+    "intro": "All notable changes to this project will be documented in this file.\nThe format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),\nand this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html)."
 }
